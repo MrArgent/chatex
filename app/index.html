@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8"> 
+        <title>jQuery Mobile Example App</title>
+        <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a2/jquery.mobile-1.0a2.min.css" />
+        
+        <style>
+          p.in {
+            width: 80%;
+            border: 1px solid grey;
+            float: left;
+          }
+          p.out {
+            width: 80%;
+            border: 1px solid grey;
+            float: right;
+          }
+          .msgContainerDiv
+      {
+        overflow-y: scroll;
+        height: 250px;
+      }
+        </style>
+
+        <script src="http://code.jquery.com/jquery-1.4.4.min.js"></script>
+        <script src="http://code.jquery.com/mobile/1.0a2/jquery.mobile-1.0a2.min.js"></script>
+        <script src="js/gear.js"></script>
+
+    </head>
+  <body>  
+<div data-role="page" id="main_page" data-theme="b">
+    <div data-role="header" >
+        <h1 id="twi_acc">Home page</h1>
+        <a href="#settings" data-icon="gear" class="ui-btn-right">Options</a>
+    </div>
+    <div data-role="content" >  
+      <div id="msgs" class="msgContainerDiv">
+        <p class="system">Подключаемся к серверу</p>
+      </div>
+    </div>
+    <div data-role="footer">
+      <input type="text" id="txt">
+      <a data-role="button" id="but_send">написать</a>
+      <a data-role="button" id="but_stop">остановить</a>
+    </div>
+</div>
+        <script>
+          var f ={
+            tm: 0,
+            init: function() {
+              gr.bp = 'http://arekus.ru/sh1/ind.php?act=';
+              gr.go('connect', {}, f.doConnect);
+              $('#but_send').click(f.doSend);
+              $('#but_stop').click(f.doStopGet);
+              f.tm = setInterval(function(){ gr.go('msg/get', {}, f.doGet); }, 1000);
+              // clearInterval(f.tm);
+            },
+            // запрос сообщений
+            doGet: function(d) {
+              var d = gr.prepareData(d);
+              if (d) f.drawMsg(d, 'in');
+            },
+
+            // останов приема сообщений
+            doStopGet : function(e) {
+              e.stopImmediatePropagation();
+              e.preventDefault();
+              clearInterval(f.tm);
+            },
+
+            // отправка сообщения
+            doSend: function(e) {
+              e.stopImmediatePropagation();
+              e.preventDefault();
+              var s = $('#txt').val();
+              if (!s) return;
+
+              gr.go('msg/send', {msg:s});
+              $('#txt').val('');
+              f.drawMsg(s, 'out');
+            },
+            // вывод сообщения соответствующего класса
+            drawMsg: function(msg, cls) {
+              $('#msgs').append('<p class="' + cls + '">' + msg + '</p>');
+            },
+            doConnect: function(d) {
+              var d = gr.prepareData(d);
+              console.log(d);
+            }
+          };
+          f.init();
+        </script>
+  </body>
+</html>
